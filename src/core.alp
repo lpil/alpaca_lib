@@ -1,0 +1,73 @@
+module core
+
+export (|>)
+export identity/1, curry/1, uncurry/1
+
+{-| Forward function application `x |> f == f x`. This function is useful
+    for avoiding parentheses and writing code in a more natural way.
+    Consider the following code to create a pentagon:
+
+        scale 2 (move (10,10) (filled blue (ngon 5 30)))
+
+    This can also be written as:
+        ngon 5 30
+          |> filled blue
+          |> move (10,10)
+          |> scale 2
+-}
+val (|>) 'a 'b : fn 'a (fn 'a -> 'b) -> 'b
+let (|>) x f =
+  f x
+
+test "forward pipe" =
+  let add x y = x + y in
+  assert.equal (1 |> add 1 |> add 1) 3
+
+-- TODO: This parses incorrectly.
+-- (╯°□°）╯︵ ┻━┻ {not_exported,<<"equal">>,1}
+-- What is the right way to write this? I think I need to specify the
+-- the associativity of (|>)
+--
+-- test "forward pipe chained into equal" =
+--   let add x y = x + y in
+--    1
+--     |> add 1
+--     |> add 1
+--     |> (assert.equal 3)
+
+
+{-| Given a value, returns exactly the same value. This is called
+    [the identity function](http://en.wikipedia.org/wiki/Identity_function).
+-}
+val identity 'a : fn 'a -> 'a
+let identity x =
+  x
+
+test "identity" =
+  assert.equal (identity 1) 1
+
+
+{-| Change how arguments are passed to a function.
+    This splits paired arguments into two separate arguments.
+-}
+val curry 'a 'b 'c : fn (fn ('a, 'b) -> 'c) 'a 'b -> 'c
+let curry f a b =
+  f (a, b)
+
+test "curry" =
+  let uncurried (x, y) = x + y in
+  let curried = curry uncurried in
+  assert.equal (curried 1 2) 3
+
+
+{-| Change how arguments are passed to a function.
+    This combines two arguments into a single pair.
+-}
+val uncurry 'a 'b 'c : fn (fn 'a 'b -> 'c) ('a, 'b) -> 'c
+let uncurry f (a, b) =
+  f a b
+
+test "uncurry" =
+  let curried x y = x + y in
+  let uncurried = uncurry curried in
+  assert.equal (uncurried (1, 2)) 3
