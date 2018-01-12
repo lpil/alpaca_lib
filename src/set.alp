@@ -1,0 +1,141 @@
+{-| A collection of unique values.
+-}
+module set
+
+-- export new/1, fromList/1, isEmpty/1, singleton/1, insert/1, remove/1, size/1
+
+-- The set type comes from Erlang, so we defined a recursive type that
+-- cannot have any values defined in Alpaca.
+-- This is not perfect as `SetJustOneMore` can be constructed with a set
+-- from `new/1` as it calls out to Erlang. How can we specify type an
+-- Erlang type?
+type set 'a
+  = map 'a
+
+
+
+-- {-| Create an empty set.
+-- -}
+-- -- This should perhaps be a zero arity function, but they are not
+-- -- currently possible in Alpaca.
+-- -- val new 'a : Set 'a
+-- val new 'a : fn () -> set 'a
+-- let new () =
+--   fromList []
+--
+-- test "new" =
+--   assert.equal (new ()) (new ())
+--
+--
+-- {-| Convert a list into a set, removing any duplicates.
+-- -}
+-- val fromList 'a : fn (list 'a) -> set 'a
+-- let fromList xs =
+--   beam :sets :from_list [xs] with
+--   | result -> result
+--
+-- test "fromList of empty list is new" =
+--   assert.equal (fromList []) (new ())
+--
+-- test "fromList of same list elements" =
+--   assert.equal (fromList [1, 2]) (fromList [2, 2, 2, 1])
+--
+--
+-- {-| Determine if a set is empty.
+-- -}
+-- val isEmpty 'a : fn (set 'a) -> bool
+-- let isEmpty set =
+--   set == (new ())
+--
+-- test "isEmpty of empty set" =
+--   assert.isTrue (isEmpty (fromList [])) "empty set is empty"
+--
+-- test "isEmpty of non-empty set" =
+--   assert.isFalse (isEmpty (fromList [1])) "set with members is not empty"
+--
+--
+-- {-| Create a set of a single value.
+-- -}
+-- val singleton 'a : fn 'a -> set 'a
+-- let singleton value =
+--   fromList [value]
+--
+-- test "singleton" =
+--   assert.equal (singleton 100) (fromList [100])
+--
+--
+-- {-| Insert a value into a set.
+-- -}
+-- val insert 'a : fn 'a (set 'a) -> set 'a
+-- let insert value set =
+--   beam :sets :add_element [value, set] with
+--   | result -> result
+--
+-- test "insert 1 element" =
+--   assert.equal
+--     (insert 100 (new ()))
+--     (fromList [100])
+--
+-- test "insert 2 elements" =
+--   assert.equal
+--     (insert 200 (insert 100 (new ())))
+--     (fromList [100, 200])
+--
+-- test "insert 2 elements and 1 pre-existing member" =
+--   assert.equal
+--     (insert 100 (insert 200 (insert 100 (new ()))))
+--     (fromList [100, 200])
+--
+--
+-- {-| Remove a value from a set.
+-- -}
+-- val remove 'a : fn 'a (set 'a) -> set 'a
+-- let remove value set =
+--   beam :sets :del_element [value, set] with
+--   | result -> result
+--
+-- test "remove member" =
+--   assert.equal
+--     (remove 1 (fromList [2, 1]))
+--     (fromList [2])
+--
+-- test "remove non-member" =
+--   assert.equal
+--     (remove 4 (fromList [1, 2, 3]))
+--     (fromList [1, 2, 3])
+--
+--
+-- {-| Determine if a value is a member of a set.
+-- -}
+-- val isMember 'a : fn 'a (set 'a) -> bool
+-- let isMember value set =
+--   beam :sets :del_element [value, set] with
+--   | result -> result
+--
+-- test "remove member" =
+--   assert.equal
+--     (remove 1 (fromList [2, 1]))
+--     (fromList [2])
+--
+-- test "remove non-member" =
+--   assert.equal
+--     (remove 4 (fromList [1, 2, 3]))
+--     (fromList [1, 2, 3])
+--
+--
+-- {-| Determine the number of values in the set.
+-- -}
+-- val size 'a : fn (set 'a) -> int
+-- let size set =
+--   beam :sets :size [set] with
+--   | result -> result
+--
+-- test "size of empty set" =
+--   assert.equal
+--     (size (fromList []))
+--     0
+--
+-- test "size of non-empty set" =
+--   assert.equal
+--     (size (fromList [1, 2, 3, 4, 5]))
+--     5
