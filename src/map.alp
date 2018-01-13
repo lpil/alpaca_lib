@@ -1,0 +1,27 @@
+{-| A mapping between keys and values
+-}
+module map
+
+{-| Create an empty map.
+-}
+val new 'a 'b : fn () -> map 'a 'b
+let new () =
+  #{}
+
+
+{-| Insert a key-value pair into the amp.
+    If there is already a value under that key it is replaced.
+-}
+val insert 'k 'v : fn 'k 'v (map 'k 'v) -> map 'k 'v
+let insert key value map =
+  #{key => value | map}
+
+test "insert new" =
+  assert.equal
+    (insert :role "programmer" (insert :name "Ada" (new ())))
+    #{ :name => "Ada", :role => "programmer" }
+
+test "insert existing" =
+  assert.equal
+    (insert :name "Dave" (insert :name "Ada" (new ())))
+    #{ :name => "Dave" }
